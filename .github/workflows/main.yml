@@ -1,5 +1,4 @@
 name: CI/CD Pipeline
-
 on:
   push:
     branches:
@@ -9,23 +8,24 @@ jobs:
   # ── Job déploiement : Ansible ────────────────────────────────
   deploy:
     runs-on: ubuntu-latest
-  
+    environment: production      
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-  
+
       - name: Install Ansible
         run: |
           sudo apt-get update
           sudo apt-get install -y ansible
-  
+
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.ANSIBLE_HOST }} >> ~/.ssh/known_hosts
-  
+
       - name: Run Ansible Playbook
         run: |
           ansible-playbook -i inventories/setup.yml inventories/playbook.yml
